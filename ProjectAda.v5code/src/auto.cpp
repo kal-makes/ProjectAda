@@ -75,21 +75,12 @@ float PID(float desired_value, float actual_value, float ki, float kd, float kp)
 //lift module
 //intake module 
 
-      
-
-
-
-
-
 void auto_routine(void) {
   int x = 1;
   while (1) {
-  /*if(!motor_flipped){
+  if(!motor_flipped){
     routine1();
   }
-  */
-  if(x){
-    x = move_inches(36.0);
-  }
+
   }
 }

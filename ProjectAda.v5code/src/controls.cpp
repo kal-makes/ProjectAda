@@ -9,6 +9,7 @@
 
 #include "vex.h"
 using namespace vex;
+timer timer1;
 // variables
 bool RemoteControlCodeEnabled = true;
 bool DrivetrainLNeedsToBeStopped_Controller1 = true;
@@ -21,7 +22,7 @@ bool toggle = false;
 bool latch = false;
 float position = 0;
 bool hi_limit = false;
-
+int t1 = 0;
 void controller_display() {
   Controller1.Screen.clearScreen();
   Controller1.Screen.setCursor(0, 0);
@@ -168,17 +169,43 @@ int intake() {
       // return 0;
     }
   }
-
   return 1;
 }
 
-void drive(void) {
-  controller_display();
+bool checkTimer( void ){
+  int t2 = timer1.time(msec);
+  if((t2-t1)>=  1000){
+    return true;
+  }
+  return false;
+}
 
+int distance_sensor(){
+  if(checkTimer()){
+    int x = back_sonar.distance(inches);
+    return x;
+  }
+  else{
+    return 0;
+  }
+}
+
+void dashboard( void ){
+  Controller1.Screen.setCursor(0, 0);
+  Controller1.Screen.print("Lift Distance: ");
+  Controller1.Screen.print(distance_sensor());
+  Controller1.Screen.clearLine();
+}
+  
+
+void drive(void) {
+  Controller1.Screen.clearScreen();
   while (1) {
     //idk what tasks are but I like them
+    dashboard();
     task autoDrive(arcadeDrive);
     task autoLift(armLift);
     task autoIntake(intake);
+    //wait(250, msec);
   }
 }

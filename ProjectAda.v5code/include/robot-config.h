@@ -14,6 +14,7 @@ extern motor middleMotor;
 extern motor intakeMotor;
 extern motor_group frontLift;
 extern limit Switch_front; 
+extern sonar back_sonar;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
