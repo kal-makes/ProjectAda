@@ -3,7 +3,7 @@
 /*    Module:       controls.cpp                                              */
 /*    Author:       Kalvin Q                                                  */
 /*    Created:      Wed Oct 17 2021                                           */
-/*    Description: config driving controls as well as lift controls           */
+/*    Description: config driving controls as well as lift controls            */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
@@ -171,7 +171,7 @@ int intake() {
   }
   return 1;
 }
-
+////////////////////////////////////// timer 
 bool checkTimer( void ){
   int t2 = timer1.time(msec);
   if((t2-t1)>=  1000){
@@ -179,7 +179,7 @@ bool checkTimer( void ){
   }
   return false;
 }
-
+//////////////////////////////////// sensors
 int distance_sensor(){
   if(checkTimer()){
     int x = back_sonar.distance(inches);
@@ -189,7 +189,7 @@ int distance_sensor(){
     return 0;
   }
 }
-
+////////////////////////////////// display
 void dashboard( void ){
   Controller1.Screen.setCursor(0, 0);
   Controller1.Screen.print("Lift Distance: ");
@@ -197,7 +197,7 @@ void dashboard( void ){
   Controller1.Screen.clearLine();
 }
   
-
+//////////////////////////////// sub-main
 void drive(void) {
   Controller1.Screen.clearScreen();
   while (1) {
