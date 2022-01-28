@@ -6,9 +6,6 @@ int degreeCounter = 5;
 
 enum routine1{start, rotate, check, increment, finished};
 int r1 = start;
-
-
-
 void front_motor_settings(void) { frontLift.setVelocity(5, percent), frontLift.setStopping(vex::brake);}
 void front_latch() {
   if (Switch_front) {
@@ -57,19 +54,6 @@ int move_inches(float distance){
   return 0; 
 }
 
-float error = 0;
-float previous_error= 0;
-float integral = 0;
-float derivative = 0;
-
-float PID(float desired_value, float actual_value, float ki, float kd, float kp){
-  error = desired_value - actual_value;
-  derivative = error - previous_error;
-  integral = integral + error;
-  
-  float drive_power = ((error * kp) + (integral * ki) + (derivative + kd));
-  return drive_power;
-}
 
 //turn module 
 //lift module

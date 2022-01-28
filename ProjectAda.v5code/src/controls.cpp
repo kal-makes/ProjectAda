@@ -3,14 +3,14 @@
 /*    Module:       controls.cpp                                              */
 /*    Author:       Kalvin Q                                                  */
 /*    Created:      Wed Oct 17 2021                                           */
-/*    Description: config driving controls as well as lift controls            */
+/*    Description: config driving controls as well as lift controls           */
 /*                                                                            */
 /*----------------------------------------------------------------------------*/
 
 #include "vex.h"
 using namespace vex;
-timer timer1;
-// variables
+
+///////////////////////////////////////VARIABLES
 bool RemoteControlCodeEnabled = true;
 bool DrivetrainLNeedsToBeStopped_Controller1 = true;
 bool DrivetrainRNeedsToBeStopped_Controller1 = true;
@@ -24,10 +24,12 @@ float position = 0;
 bool hi_limit = false;
 int t1 = 0;
 bool drive_state = false;
+
 ///////////////////////////////////////TIMERS 
+timer timer1;
 bool checkTimer( void ){
   int t2 = timer1.time(msec);
-  if((t2-t1)>=  1000){
+  if((t2-t1)>= 500){
     return true;
   }
   return false;
@@ -42,11 +44,6 @@ int distance_sensor(){
     return 0;
   }
 }
-void controller_display() {
-  Controller1.Screen.clearScreen();
-  Controller1.Screen.setCursor(0, 0);
-  // Controller1reen.print("ADA Battery");.Sc
-}
 ///////////////////////////////////////DRIVE
 int _arcadeDrive_(){
   if(RemoteControlCodeEnabled){
@@ -55,42 +52,39 @@ int _arcadeDrive_(){
     int drivetrainRightSideSpeed =
           Controller1.Axis3.position() - Controller1.Axis1.position();
     int drivetrainMiddlePartSpeed = -Controller1.Axis4.position();
-
+    //get joystick values
     if((drivetrainLeftSideSpeed > 5 || drivetrainLeftSideSpeed < -5) ||
     (drivetrainRightSideSpeed > 5 || drivetrainRightSideSpeed < -5) ||
       (drivetrainMiddlePartSpeed > 5 || drivetrainMiddlePartSpeed < -5)){
-        LeftDriveSmart.spin(fwd, drivetrainLeftSideSpeed, pct);
-        RightDriveSmart.spin(fwd, drivetrainRightSideSpeed, pct);
-        middleMotor.spin(fwd, drivetrainMiddlePartSpeed, pct);
+        LeftDriveSmart.spin(fwd, drivetrainLeftSideSpeed/2, pct);
+        RightDriveSmart.spin(fwd, drivetrainRightSideSpeed/2, pct);
+        middleMotor.spin(fwd, drivetrainMiddlePartSpeed/2, pct);
       }else{
-        Drivetrain.stop(); 
-        middleMotor.stop();
+        Drivetrain.stop(brake); 
+        middleMotor.stop(brake);
       }
   }
-     task::sleep(20);
      return 0;
 }
 void _reverseSLOW_(){
   drive_state = true;
-  while(Controller1.ButtonDown.pressing() && distance_sensor()>=2){
+  while(Controller1.ButtonDown.pressing()){
     Drivetrain.drive(reverse, 40, rpm);
   }
   Drivetrain.stop();
   intakeMotor.stop(); 
   drive_state = false;
 }
-
 int _drive_(){
   if(!drive_state){
     _arcadeDrive_();
   }
+  task::sleep(20);
   return 0;
-}
-void _special_func_(){
-  Controller1.ButtonDown.pressed(_reverseSLOW_);
 }
 ///////////////////////////////////////INTAKE
 void _intake_(){
+  intakeMotor.setVelocity(70, pct);
   if(!latch){
     //latch is init to false so when the callback is triggered it latches to true
     //starts the intake motor 
@@ -105,6 +99,7 @@ void _intake_(){
 }
 void _intakeSLOW_(){
   drive_state = true;
+  intakeMotor.setVelocity(70, pct);
   while(Controller1.ButtonUp.pressing()){
     //when button is pressing, drive fwd while intaking
       Drivetrain.drive(fwd, 40, rpm);
@@ -118,12 +113,11 @@ void _intakeSLOW_(){
 //----------------- INTAKE INIT PASSED TO CALLBACK
 int intake_init(){
   Controller1.ButtonL1.pressed(_intake_);
-  Controller1.ButtonUp.pressed(_intakeSLOW_);
   //manager for intake callbacks 
   return 0;
 } 
 ///////////////////////////////////////ARM-LIFT
-void armLift() {
+int _armLift_() {
   LiftMotors.setStopping(hold); // prevent slipping
   if (Controller1.ButtonR1.pressing() && !Switch_hi) {
     // checks to see if Button R1 on controller is pressed and that the limit
@@ -147,7 +141,6 @@ void armLift() {
     position = LiftMotors.position(deg);
     state = true;
   }
-
   else if (!(Controller1.ButtonR1.pressing()) &&
            LiftMotors.position(deg)
                // simple control block that prevents slippage
@@ -161,37 +154,21 @@ void armLift() {
     // set the toggle so that we don't constantly tell the motor to stop
     // when the buttons are released
     Controller1R1R2ButtonsControlMotorsStopped = true;
+  }else if (Switch_hi){
+    LiftMotors.resetRotation();
   }
+  return 0;
 }
-/*int intake() {
-  // two states for intake... either pressed with L1 or pressed with button up
-  if (Controller1.ButtonL1.pressing()) {
-    intakeMotor.setVelocity(70, percent);
-    intakeMotor.spin(forward);
-    state = true;
-  } else if (Controller1.ButtonL2.pressing()) {
-    intakeMotor.stop();
-    state = false;
-  }
-  if (!state) {
-    if (Controller1.ButtonUp.pressing()) {
-      intakeMotor.setVelocity(70, percent);
-      intakeMotor.spin(forward);
-      Drivetrain.drive(forward, 50, rpm);
-      Controller1UpDownButtonsControlMotorsStopped = false;
-    } else if (!DrivetrainLNeedsToBeStopped_Controller1 ||
-               !DrivetrainRNeedsToBeStopped_Controller1) {
-      Controller1UpDownButtonsControlMotorsStopped = true;
-      intakeMotor.stop();
-      Drivetrain.stop();
-      // return 0;
-    }
-  }
-  return 1;
+///////////////////////////////////////SPECIAL FUNCTIONS
+void _special_func_(){
+  Controller1.ButtonDown.pressed(_reverseSLOW_);
+  Controller1.ButtonUp.pressed(_intakeSLOW_);
 }
-*/
-
 ///////////////////////////////////////DISPLAY
+void controller_display() {
+  Controller1.Screen.clearScreen();
+  Controller1.Screen.setCursor(0, 0);
+}
 void dashboard( void ){
   Controller1.Screen.setCursor(0, 0);
   Controller1.Screen.print("Lift Distance: ");
@@ -202,9 +179,9 @@ void dashboard( void ){
 void init_callbacks(){
   intake_init();
   _special_func_();
-  
 }
 ///////////////////////////////////////TASK-MANAGER
 void task_manager(){
   task ADAdrive = task(_drive_);
+  task ADAlift = task(_armLift_);
 }

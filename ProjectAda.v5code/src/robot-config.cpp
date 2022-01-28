@@ -8,6 +8,7 @@ using code = vision::code;
 brain  Brain;
 // VEXcode device constructors
 controller Controller1 = controller(primary);
+//motors
 motor leftMotorA = motor(PORT1, ratio18_1, false);
 motor leftMotorB = motor(PORT11, ratio18_1, false);
 motor_group LeftDriveSmart = motor_group(leftMotorA, leftMotorB);
@@ -19,12 +20,12 @@ motor middleMotor = motor(PORT12, ratio18_1, false);
 motor LiftMotorsMotorA = motor(PORT2, ratio18_1, false);
 motor LiftMotorsMotorB = motor(PORT3, ratio18_1, true);
 motor_group LiftMotors = motor_group(LiftMotorsMotorA, LiftMotorsMotorB);
-//limit Switch_low = limit(Brain.ThreeWirePort.A);
-limit Switch_hi = limit(Brain.ThreeWirePort.H);
 motor intakeMotor = motor(PORT15, ratio18_1,false);
 motor rightTiltmotor = motor(PORT4, ratio18_1, false);
 motor leftTiltmotor= motor(PORT19, ratio18_1, true);
 motor_group frontLift = motor_group(rightTiltmotor, leftTiltmotor);
+//sensors
+limit Switch_hi = limit(Brain.ThreeWirePort.H);
 limit Switch_front = limit(Brain.ThreeWirePort.G);
 sonar back_sonar = sonar(Brain.ThreeWirePort.F);
 // VEXcode generated functions
