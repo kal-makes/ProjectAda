@@ -11,5 +11,6 @@ extern brain Brain;
  * 
  * This should be called at the start of your int main function.
  */
- void drive( void );
- 
+int _arcadeDrive_ ( void );
+void task_manager ( void );
+void init_callbacks ( void );

@@ -23,88 +23,107 @@ bool latch = false;
 float position = 0;
 bool hi_limit = false;
 int t1 = 0;
+bool drive_state = false;
+///////////////////////////////////////TIMERS 
+bool checkTimer( void ){
+  int t2 = timer1.time(msec);
+  if((t2-t1)>=  1000){
+    return true;
+  }
+  return false;
+}
+///////////////////////////////////////SENSORS
+int distance_sensor(){
+  if(checkTimer()){
+    int x = back_sonar.distance(inches);
+    return x;
+  }
+  else{
+    return 0;
+  }
+}
 void controller_display() {
   Controller1.Screen.clearScreen();
   Controller1.Screen.setCursor(0, 0);
   // Controller1reen.print("ADA Battery");.Sc
 }
-
-int arcadeDrive() {
-  if (RemoteControlCodeEnabled) {
+///////////////////////////////////////DRIVE
+int _arcadeDrive_(){
+  if(RemoteControlCodeEnabled){
     int drivetrainLeftSideSpeed =
-        Controller1.Axis3.position() + Controller1.Axis1.position();
+          Controller1.Axis3.position() + Controller1.Axis1.position();
     int drivetrainRightSideSpeed =
-        Controller1.Axis3.position() - Controller1.Axis1.position();
+          Controller1.Axis3.position() - Controller1.Axis1.position();
     int drivetrainMiddlePartSpeed = -Controller1.Axis4.position();
-    // check if the value is inside of the deadband range
-    if (drivetrainLeftSideSpeed < 5 && drivetrainLeftSideSpeed > -5) {
-      // check if the left motor has already been stopped
-      if (DrivetrainLNeedsToBeStopped_Controller1) {
-        // stop the left drive motor
-        LeftDriveSmart.setStopping(brake);
-        LeftDriveSmart.stop();
-        // tell the code that the left motor has been stopped
-        DrivetrainLNeedsToBeStopped_Controller1 = false;
-      }
-    } else {
-      // reset the toggle so that the deadband code knows to stop the left motor
-      // nexttime the input is in the deadband range
-      DrivetrainLNeedsToBeStopped_Controller1 = true;
-    }
-    // check if the value is inside of the deadband range
-    if (drivetrainRightSideSpeed < 5 && drivetrainRightSideSpeed > -5) {
-      // check if the right motor has already been stopped
-      if (DrivetrainRNeedsToBeStopped_Controller1) {
-        // stop the right drive motor
-        RightDriveSmart.setStopping(brake);
-        RightDriveSmart.stop();
-        // tell the code that the right motor has been stopped
-        DrivetrainRNeedsToBeStopped_Controller1 = false;
-      }
-    } else {
-      // reset the toggle so that the deadband code knows to stop the right
-      // motor next time the input is in the deadband range
-      DrivetrainRNeedsToBeStopped_Controller1 = true;
-    }
 
-    // check if the value is inside of the deadband range
-    if (drivetrainMiddlePartSpeed < 5 && drivetrainMiddlePartSpeed > -5) {
-      // check if the right motor has already been stopped
-      if (DrivetrainMNeedsToBeStopped_Controller1) {
-        // stop the right drive motor
-        middleMotor.setStopping(brake);
+    if((drivetrainLeftSideSpeed > 5 || drivetrainLeftSideSpeed < -5) ||
+    (drivetrainRightSideSpeed > 5 || drivetrainRightSideSpeed < -5) ||
+      (drivetrainMiddlePartSpeed > 5 || drivetrainMiddlePartSpeed < -5)){
+        LeftDriveSmart.spin(fwd, drivetrainLeftSideSpeed, pct);
+        RightDriveSmart.spin(fwd, drivetrainRightSideSpeed, pct);
+        middleMotor.spin(fwd, drivetrainMiddlePartSpeed, pct);
+      }else{
+        Drivetrain.stop(); 
         middleMotor.stop();
-        // tell the code that the right motor has been stopped
-        DrivetrainMNeedsToBeStopped_Controller1 = false;
       }
-    } else {
-      // reset the toggle so that the deadband code knows to stop the right
-      // motor next time the input is in the deadband range
-      DrivetrainMNeedsToBeStopped_Controller1 = true;
-    }
-
-    // only tell the left drive motor to spin if the values are not in the
-    // deadband range
-    if (DrivetrainLNeedsToBeStopped_Controller1) {
-      LeftDriveSmart.setVelocity(drivetrainLeftSideSpeed, percent);
-      LeftDriveSmart.spin(forward);
-    }
-    // only tell the right drive motor to spin if the values are not in the
-    // deadband range
-    if (DrivetrainRNeedsToBeStopped_Controller1) {
-      RightDriveSmart.setVelocity(drivetrainRightSideSpeed, percent);
-      RightDriveSmart.spin(forward);
-    }
-    if (DrivetrainMNeedsToBeStopped_Controller1) {
-      middleMotor.setVelocity(drivetrainMiddlePartSpeed, percent);
-      middleMotor.spin(forward);
-    }
   }
-
-  return 0;
+     task::sleep(20);
+     return 0;
+}
+void _reverseSLOW_(){
+  drive_state = true;
+  while(Controller1.ButtonDown.pressing() && distance_sensor()>=2){
+    Drivetrain.drive(reverse, 40, rpm);
+  }
+  Drivetrain.stop();
+  intakeMotor.stop(); 
+  drive_state = false;
 }
 
-int armLift() {
+int _drive_(){
+  if(!drive_state){
+    _arcadeDrive_();
+  }
+  return 0;
+}
+void _special_func_(){
+  Controller1.ButtonDown.pressed(_reverseSLOW_);
+}
+///////////////////////////////////////INTAKE
+void _intake_(){
+  if(!latch){
+    //latch is init to false so when the callback is triggered it latches to true
+    //starts the intake motor 
+    latch = true;
+    intakeMotor.spin(fwd);
+  }else{
+    //when callback is triggered a second time, motor stops and latches to false
+    intakeMotor.stop();
+    latch = false; 
+  }
+  task::sleep(20);
+}
+void _intakeSLOW_(){
+  drive_state = true;
+  while(Controller1.ButtonUp.pressing()){
+    //when button is pressing, drive fwd while intaking
+      Drivetrain.drive(fwd, 40, rpm);
+      intakeMotor.spin(fwd);
+  }
+  //stop drive train and intake when not pressing button
+  Drivetrain.stop();
+  intakeMotor.stop(); 
+  drive_state = false;
+}
+//----------------- INTAKE INIT PASSED TO CALLBACK
+int intake_init(){
+  Controller1.ButtonL1.pressed(_intake_);
+  Controller1.ButtonUp.pressed(_intakeSLOW_);
+  //manager for intake callbacks 
+  return 0;
+} 
+///////////////////////////////////////ARM-LIFT
+void armLift() {
   LiftMotors.setStopping(hold); // prevent slipping
   if (Controller1.ButtonR1.pressing() && !Switch_hi) {
     // checks to see if Button R1 on controller is pressed and that the limit
@@ -143,9 +162,8 @@ int armLift() {
     // when the buttons are released
     Controller1R1R2ButtonsControlMotorsStopped = true;
   }
-  return 0;
 }
-int intake() {
+/*int intake() {
   // two states for intake... either pressed with L1 or pressed with button up
   if (Controller1.ButtonL1.pressing()) {
     intakeMotor.setVelocity(70, percent);
@@ -171,41 +189,22 @@ int intake() {
   }
   return 1;
 }
-////////////////////////////////////// timer 
-bool checkTimer( void ){
-  int t2 = timer1.time(msec);
-  if((t2-t1)>=  1000){
-    return true;
-  }
-  return false;
-}
-//////////////////////////////////// sensors
-int distance_sensor(){
-  if(checkTimer()){
-    int x = back_sonar.distance(inches);
-    return x;
-  }
-  else{
-    return 0;
-  }
-}
-////////////////////////////////// display
+*/
+
+///////////////////////////////////////DISPLAY
 void dashboard( void ){
   Controller1.Screen.setCursor(0, 0);
   Controller1.Screen.print("Lift Distance: ");
   Controller1.Screen.print(distance_sensor());
   Controller1.Screen.clearLine();
 }
+///////////////////////////////////////CALLBACKS
+void init_callbacks(){
+  intake_init();
+  _special_func_();
   
-//////////////////////////////// sub-main
-void drive(void) {
-  Controller1.Screen.clearScreen();
-  while (1) {
-    //idk what tasks are but I like them
-    dashboard();
-    task autoDrive(arcadeDrive);
-    task autoLift(armLift);
-    task autoIntake(intake);
-    //wait(250, msec);
-  }
+}
+///////////////////////////////////////TASK-MANAGER
+void task_manager(){
+  task ADAdrive = task(_drive_);
 }
