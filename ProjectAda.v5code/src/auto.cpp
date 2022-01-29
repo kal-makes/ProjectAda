@@ -20,6 +20,9 @@ int routine1(void){
       r1= rotate;
       return 0;
     case rotate:
+      intakeMotor.spin(reverse, 80, pct);
+      wait(500, msec);
+      intakeMotor.stop();
       frontLift.spinTo(-40, degrees);
       wait(1000, msec);
       r1 = check;

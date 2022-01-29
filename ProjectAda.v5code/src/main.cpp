@@ -21,7 +21,6 @@
 using namespace vex;
 // A global instance of competition
 competition Competition;
-
 // define your global instances of motors and other devices here
 
 /*---------------------------------------------------------------------------*/
@@ -94,6 +93,8 @@ int main() {
   Competition.drivercontrol(usercontrol);
   // Run the pre-autonomous function.
   pre_auton();
+  Controller1.Screen.clearScreen();
+  Controller1.Screen.setCursor(0,0);
   // Prevent main from exiting with an infinite loop.
   while (true) {
     wait(100, msec);

@@ -70,6 +70,9 @@ void _reverseSLOW_(){
   drive_state = true;
   while(Controller1.ButtonDown.pressing()){
     Drivetrain.drive(reverse, 40, rpm);
+    if(distance_sensor()<= 3){
+      Controller1.rumble(".");
+    }
   }
   Drivetrain.stop();
   intakeMotor.stop(); 
