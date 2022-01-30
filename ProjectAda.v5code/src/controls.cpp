@@ -9,7 +9,6 @@
 
 #include "vex.h"
 using namespace vex;
-
 ///////////////////////////////////////VARIABLES
 bool RemoteControlCodeEnabled = true;
 bool DrivetrainLNeedsToBeStopped_Controller1 = true;
@@ -24,19 +23,19 @@ float position = 0;
 bool hi_limit = false;
 int t1 = 0;
 bool drive_state = false;
-
+bool DBG = false;
 ///////////////////////////////////////TIMERS 
 timer timer1;
-bool checkTimer( void ){
+bool checkTimer( int duration ){
   int t2 = timer1.time(msec);
-  if((t2-t1)>= 500){
+  if((t2-t1)>= duration){
     return true;
   }
   return false;
 }
 ///////////////////////////////////////SENSORS
 int distance_sensor(){
-  if(checkTimer()){
+  if(checkTimer(500)){
     int x = back_sonar.distance(inches);
     return x;
   }
@@ -46,7 +45,7 @@ int distance_sensor(){
 }
 ///////////////////////////////////////DRIVE
 int _arcadeDrive_(){
-  if(RemoteControlCodeEnabled){
+  if(RemoteControlCodeEnabled && !drive_state){
     int drivetrainLeftSideSpeed =
           Controller1.Axis3.position() + Controller1.Axis1.position();
     int drivetrainRightSideSpeed =
@@ -63,7 +62,8 @@ int _arcadeDrive_(){
         Drivetrain.stop(brake); 
         middleMotor.stop(brake);
       }
-  }
+  } 
+     task::sleep(20);
      return 0;
 }
 void _reverseSLOW_(){
@@ -113,8 +113,24 @@ void _intakeSLOW_(){
   intakeMotor.stop(); 
   drive_state = false;
 }
+void _intake_increment_(){
+  int current_velocity = intakeMotor.velocity(pct);
+  int new_velocity = current_velocity + 5;
+  intakeMotor.setVelocity(new_velocity, pct);
+}
+void _intake_decrement_(){
+  int current_velocity = intakeMotor.velocity(pct);
+  int new_velocity = current_velocity - 5;
+  if(new_velocity < 0){
+    new_velocity = 0;
+  }
+  intakeMotor.setVelocity(new_velocity, pct);
+}
 //----------------- INTAKE INIT PASSED TO CALLBACK
 int intake_init(){
+  if(DBG){
+    Controller1.ButtonA.pressed(_intake_increment_);
+  }
   Controller1.ButtonL1.pressed(_intake_);
   //manager for intake callbacks 
   return 0;
@@ -171,6 +187,13 @@ void _special_func_(){
 void controller_display() {
   Controller1.Screen.clearScreen();
   Controller1.Screen.setCursor(0, 0);
+  if (DBG){
+    Controller1.Screen.print("Lift Deg: ");
+    Controller1.Screen.print(LiftMotors.position(deg));
+    Controller1.Screen.newLine();
+    Controller1.Screen.print("Intake Vel (pct):");
+    Controller1.Screen.print(intakeMotor.velocity(pct));
+  }
 }
 void dashboard( void ){
   Controller1.Screen.setCursor(0, 0);
@@ -185,6 +208,7 @@ void init_callbacks(){
 }
 ///////////////////////////////////////TASK-MANAGER
 void task_manager(){
-  task ADAdrive = task(_drive_);
+  task ADAdrive = task(_arcadeDrive_);
   task ADAlift = task(_armLift_);
+  controller_display(); 
 }

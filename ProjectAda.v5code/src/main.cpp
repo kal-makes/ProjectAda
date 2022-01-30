@@ -36,6 +36,7 @@ competition Competition;
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
+  
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
 }
@@ -93,8 +94,6 @@ int main() {
   Competition.drivercontrol(usercontrol);
   // Run the pre-autonomous function.
   pre_auton();
-  Controller1.Screen.clearScreen();
-  Controller1.Screen.setCursor(0,0);
   // Prevent main from exiting with an infinite loop.
   while (true) {
     wait(100, msec);
