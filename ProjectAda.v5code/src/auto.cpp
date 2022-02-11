@@ -1,8 +1,18 @@
 #include "vex.h"
+#include "VEXmath.h"
 using namespace vex;
 
 bool motor_flipped = false;
 int degreeCounter = 5;
+
+int error;
+int prevError=0;
+int derivative;
+int totalError=0;
+
+int turnError;
+int prevTurnError = 0;
+int turnDerivative;
 
 enum routine1{start, rotate, check, increment, finished};
 int r1 = start;
@@ -11,6 +21,33 @@ void front_latch() {
   if (Switch_front) {
     motor_flipped = true;
   }
+}
+
+
+void drivePID(int desiredPos, int desiredTurnPos){
+
+//lateral movement//
+ desiredPos = inches_to_degrees(desiredPos);
+//converts inches to degrees for easier calculation
+ double leftDrivepos = LeftDriveSmart.position(degrees);
+ double rightDrivepos  = RightDriveSmart.position(degrees);
+ double avgPosition = (leftDrivepos+rightDrivepos)/2;
+ int error = avgPosition - desiredPos;
+ derivative = error - prevError;
+ double latMotorPower = (error*kP + derivative*kD);
+
+//turn movement//
+int turnDifference = leftDrivepos - rightDrivepos;
+turnError = turnDifference - desiredTurnPos;
+turnDerivative = turnError - prevTurnError;
+double turnMotorPower= (turnError*kP + derivative*kD);
+prevTurnError = turnError;
+prevError = error;
+
+//spin motors
+LeftDriveSmart.spin(forward, (latMotorPower+turnMotorPower), voltageUnits::volt);
+RightDriveSmart.spin(forward, (latMotorPower-turnMotorPower), voltageUnits::volt);
+
 }
 
 int routine1(void){
@@ -49,21 +86,11 @@ int routine1(void){
  return 0;
 }
 
-//drive module 
-//distance in inches!
-int move_inches(float distance){
-  //PID?
-  Drivetrain.driveFor(forward, distance, inches, 100, rpm);
-  return 0; 
-}
-
-
 //turn module 
 //lift module
 //intake module 
 
 void auto_routine(void) {
-  int x = 1;
   while (1) {
   if(!motor_flipped){
     routine1();
