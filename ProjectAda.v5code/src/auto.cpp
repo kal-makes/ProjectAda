@@ -2,12 +2,13 @@
 #include "VEXmath.h"
 using namespace vex;
 
-bool motor_flipped = false;
+bool motor_flipped = true;
 int degreeCounter = 5;
 
 int error;
 int prevError=0;
 int derivative;
+int integral;
 int totalError=0;
 
 int turnError;
@@ -24,33 +25,40 @@ void front_latch() {
 }
 
 
-void drivePID(int desiredPos, int desiredTurnPos){
-
+void drivePID(float desiredPos, double desiredTurnPos){
 //lateral movement//
- desiredPos = inches_to_degrees(desiredPos);
+desiredPos = inches_to_degrees(desiredPos);
+LeftDriveSmart.resetPosition();
+RightDriveSmart.resetPosition();
+while(true){
 //converts inches to degrees for easier calculation
  double leftDrivepos = LeftDriveSmart.position(degrees);
  double rightDrivepos  = RightDriveSmart.position(degrees);
  double avgPosition = (leftDrivepos+rightDrivepos)/2;
- int error = avgPosition - desiredPos;
+ float error = desiredPos - avgPosition;
  derivative = error - prevError;
- double latMotorPower = (error*kP + derivative*kD);
-
+ double latMotorPower = (error*kP + derivative*kD + totalError*kI)/12;
 //turn movement//
-int turnDifference = leftDrivepos - rightDrivepos;
-turnError = turnDifference - desiredTurnPos;
+float turnDifference = leftDrivepos - rightDrivepos;
+turnError = desiredTurnPos -turnDifference;
+float avg_error = turnError+error/2;
 turnDerivative = turnError - prevTurnError;
-double turnMotorPower= (turnError*kP + derivative*kD);
+double turnMotorPower= (turnError*kP + turnDerivative*kD+ totalError*kI)/12;
 prevTurnError = turnError;
-prevError = error;
 
 //spin motors
-LeftDriveSmart.spin(forward, (latMotorPower+turnMotorPower), voltageUnits::volt);
-RightDriveSmart.spin(forward, (latMotorPower-turnMotorPower), voltageUnits::volt);
+LeftDriveSmart.spin(forward, latMotorPower + turnMotorPower, voltageUnits::volt);
+RightDriveSmart.spin(forward, latMotorPower - turnMotorPower, voltageUnits::volt);
 
+prevError = error;
+totalError += error;
+Controller1.Screen.clearLine();
+Controller1.Screen.print(avg_error);
+wait(20, msec);
+}
 }
 
-int routine1(void){
+int routine0(void){
   frontLift.resetRotation();
   switch(r1){
     case start:
@@ -85,16 +93,16 @@ int routine1(void){
  }
  return 0;
 }
-
+int routine1(){
+  Drivetrain.driveFor(forward,27.0, inches);
+  wait(1000, msec);
+  Drivetrain.turnFor(left, 180, degrees);
+  return 0;
+}
 //turn module 
 //lift module
 //intake module 
 
 void auto_routine(void) {
-  while (1) {
-  if(!motor_flipped){
-    routine1();
-  }
-
-  }
+drivePID(29 ,-180);
 }

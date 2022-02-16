@@ -88,6 +88,8 @@ void usercontrol(void) {
     // update your motors, etc.
     // ........................................................................
     task_manager();
+    Controller1.Screen.clearLine();
+    Controller1.Screen.print(LiftMotors.position(degrees));
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
   }
