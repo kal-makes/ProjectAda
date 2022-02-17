@@ -9,4 +9,10 @@ extern double turnKd;
 extern double turnKp;
 extern double turnKi;
 
+extern double sonar_kP;
+extern double sonar_kD;
+extern double sonar_kI;
+
 double inches_to_degrees( double );
+double degrees_to_inches( double );
+bool checkTimer ( int );

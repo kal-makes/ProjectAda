@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------*/
+  /*----------------------------------------------------------------------------*/
 /*                                                                            */
 /*    Module:       main.cpp                                                  */
 /*    Author:       VEX                                                       */
@@ -36,15 +36,6 @@ competition Competition;
 void pre_auton(void) {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
-  LeftDriveSmart.resetPosition();
-  RightDriveSmart.resetPosition();
-  while(!Switch_hi){
-    LiftMotors.spin(forward);
-  }if(Switch_hi){
-    LiftMotors.stop(brake);
-    LiftMotors.resetPosition();
-  }
-
   // All activities that occur before the competition starts
   // Example: clearing encoders, setting servo positions, ...
 }
@@ -79,6 +70,8 @@ void autonomous(void) {
 void usercontrol(void) {
   // User control code here, inside the loop
   init_callbacks();
+  //file();
+  int x = 0;
   while (1) {
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
@@ -88,8 +81,6 @@ void usercontrol(void) {
     // update your motors, etc.
     // ........................................................................
     task_manager();
-    Controller1.Screen.clearLine();
-    Controller1.Screen.print(LiftMotors.position(degrees));
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
   }

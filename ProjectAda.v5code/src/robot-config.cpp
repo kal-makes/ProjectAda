@@ -15,7 +15,8 @@ motor_group LeftDriveSmart = motor_group(leftMotorA, leftMotorB);
 motor rightMotorA = motor(PORT10, ratio18_1, true);
 motor rightMotorB = motor(PORT20, ratio18_1, true);
 motor_group RightDriveSmart = motor_group(rightMotorA, rightMotorB);
-drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 292.09999999999997, 9.906, mm, 1.6666666666666667);
+drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 292.09999999999997, 9.906, mm, 0.33);
+//CHANGED GEAR RATIO
 motor middleMotor = motor(PORT12, ratio18_1, false);
 motor LiftMotorsMotorA = motor(PORT2, ratio18_1, false);
 motor LiftMotorsMotorB = motor(PORT3, ratio18_1, true);
@@ -38,5 +39,14 @@ sonar back_sonar = sonar(Brain.ThreeWirePort.F);
  * This should be called at the start of your int main function.
  */
 void vexcodeInit( void ) {
-  // nothing to initialize
+  /*
+    LeftDriveSmart.resetPosition();
+  RightDriveSmart.resetPosition();
+  while(!Switch_hi){
+    LiftMotors.spin(forward);
+  }if(Switch_hi){
+    LiftMotors.stop(brake);
+    LiftMotors.resetPosition();
+  }
+  */
 }

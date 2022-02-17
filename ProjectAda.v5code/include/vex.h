@@ -18,6 +18,8 @@
 #include "robot-config.h"
 #include "controls.h"
 #include "auto.h"
+#include "VEXmath.h"
+#include "fileManager.h"
 
 #define waitUntil(condition)                                                   \
   do {                                                                         \

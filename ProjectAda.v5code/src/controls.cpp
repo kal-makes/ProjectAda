@@ -9,8 +9,7 @@
 
 #include "vex.h"
 using namespace vex;
-///////////////////////////////////////VARIABLES
-
+//################################################### VARIABLES:
 bool RemoteControlCodeEnabled = true;
 // check if remote control is enabled
 bool DrivetrainLNeedsToBeStopped_Controller1 = true;
@@ -19,31 +18,16 @@ bool DrivetrainMNeedsToBeStopped_Controller1 = true;
 bool Controller1UpDownButtonsControlMotorsStopped = true;
 bool Controller1R1R2ButtonsControlMotorsStopped = true;
 bool state = false;
-
 bool toggle = false;
 bool latch = false;
 // toggle and latch for intake button
-float position = 0;
-
 bool hi_limit = false;
 // limit switch for armlift
-int t1 = 0;
 bool drive_state = false;
 bool DBG = false;
+float position = 0;
 
-///////////////////////////////////////TIMERS
-
-timer timer1;
-bool checkTimer(int duration) {
-  int t2 = timer1.time(msec);
-  if ((t2 - t1) >= duration) {
-    return true;
-  }
-  return false;
-}
-
-///////////////////////////////////////SENSORS
-
+//################################################### SENSOR FUNCTIONS:
 int distance_sensor() {
   if (checkTimer(500)) {
     int x = back_sonar.distance(inches);
@@ -97,8 +81,7 @@ int _drive_() {
   return 0;
 }
 
-///////////////////////////////////////INTAKE
-
+//################################################### INTAKE FUNCTIONS:
 void _intake_() {
   intakeMotor.setVelocity(70, pct);
   if (!latch) {
@@ -149,8 +132,7 @@ int intake_init() {
   // manager for intake callbacks
   return 0;
 }
-///////////////////////////////////////ARM-LIFT
-
+//################################################### ARM LIFT FUNCTIONS:
 int _armLift_() {
   LiftMotors.setStopping(hold); // prevent slipping
   if (Controller1.ButtonR1.pressing() && !Switch_hi) {
