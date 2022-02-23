@@ -8,8 +8,9 @@ extern brain Brain;
 #include <string>
 std::ofstream ofs;
 
+
 using std::string;
-int x = 0;
+int trial = 0;
 int file() {
     if( Brain.SDcard.isInserted() ) {
       // create a file with long filename
@@ -27,17 +28,24 @@ int file() {
 }
 int PIDinit(){
    if(Brain.SDcard.isInserted()){
-    ofs.open("PIDVALUES.txt", std::ofstream::out | std::ios_base::app);
-    ofs<<"|Lateral Error|"<<","<<"|Rotational Error|"<<","<<"|AVG Power (V)|"<<","<<"|Distance Val (deg)|"<<","<<"|Desired Distance (deg)|"<<","<<"|Turn Val (deg)|"<<","<<"|Desired Turn (deg)|"<<","<<"|Time (msec)|"<<std::endl;
+    ofs.open("PIDVALUES.csv", std::ofstream::out | std::ios_base::app);
+    ofs<<"Trial:"<<trial<<std::endl;
+    ofs<<"Lateral Error"<<","<<"Rotational Error"<<","<<"AVG Power (V)"<<","<<"Distance Val (deg)"<<","<<"Desired Distance (deg)"<<","<<"Turn Val (deg)"<<","<<"Desired Turn (deg)"<<","<<"Time (msec)"<<std::endl;
     ofs.close();
+    trial = trial+1;
   }
   return 1;
 }
-
 void PIDwrite(double lat_error, double rot_error, double avg_power, int counter, float distance_val, float desired_distance, float turn_val, float desired_turn){
   if( Brain.SDcard.isInserted()){
       ofs.open("PIDVALUES.csv", std::ofstream::out | std::ios_base::app);
       ofs<<lat_error<<","<<rot_error<<","<<","<<avg_power<<","<<distance_val<<","<<desired_distance<<","<<turn_val<<","<<desired_turn<<","<<counter<<std::endl;
       ofs.close();
   }
+}
+int measurementInit(){
+  if(Brain.SDcard.isInserted()){
+    ofs.open("Measurements.csv", std::ofstream::out | std::ios_base::app);
+  }
+  return 0;
 }

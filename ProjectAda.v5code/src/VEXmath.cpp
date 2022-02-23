@@ -8,13 +8,13 @@ double kD = 0.2;
 double kI= 0.0;
 float wheelDia = 4;
 float gearRatio=0.33;
-
+float width = 12.0;
 double circumference = wheelDia*(M_PI);
 double inches_deg = (circumference/360);
 double degrees_inch = (360/circumference);
 
-double turnKp = 0.5;
-double turnKd = 0.1;
+double turnKp = 2.0;
+double turnKd = 0.0;
 double turnKi = 0.0;
 
 double sonar_kP = 7.0;
@@ -23,7 +23,10 @@ double sonar_kI = 0.0;
 
 double acceptable_error = 0.0;
 
-
+double adjusted_angle(float angle_){
+  angle_ = angle_*((180/M_PI)/width);
+  return angle_;
+}
 double inches_to_degrees(double pos){
  float conversion = ((pos)/(inches_deg))*gearRatio;
  return conversion;
@@ -33,8 +36,11 @@ double degrees_to_inches(double pos){
   return conversion;
 }
 
-int t1 = 0;
+#if VER == 2
+  
+#endif
 //################################################### TIMER FUNCTIONS:
+int t1 = 0;
 timer timer1;
 /*--------------------------------------
   CHECK TIMER FUNCTION:

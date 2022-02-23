@@ -22,3 +22,4 @@ extern sonar back_sonar;
  * This should be called at the start of your int main function.
  */
 void  vexcodeInit( void );
+void resetDrivetrain ( void );

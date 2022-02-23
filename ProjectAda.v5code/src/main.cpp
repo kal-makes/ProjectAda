@@ -17,7 +17,7 @@
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
-
+bool autonoumous_active = false;
 using namespace vex;
 // A global instance of competition
 competition Competition;
@@ -51,7 +51,9 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
+  autonoumous_active = true;
   auto_routine();
+  autonoumous_active = false;
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................
@@ -68,10 +70,11 @@ void autonomous(void) {
 /*---------------------------------------------------------------------------*/
 
 void usercontrol(void) {
-  // User control code here, inside the loop
+  if(!autonoumous_active){
+      // User control code here, inside the loop
   init_callbacks();
+  Controller1.Screen.clearScreen();
   //file();
-  int x = 0;
   while (1) {
     // This is the main execution loop for the user control program.
     // Each time through the loop your program should update motor + servo
@@ -81,8 +84,15 @@ void usercontrol(void) {
     // update your motors, etc.
     // ........................................................................
     task_manager();
+    //retrieves drive train encoder values (deg)
+    //calculates error and also derivate
+    //PD Loop for lateral movement
+
+
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
+  }
+
   }
 }
 
@@ -94,7 +104,7 @@ int main() {
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
   // Run the pre-autonomous function.
-  pre_auton();
+  //pre_auton();
   // Prevent main from exiting with an infinite loop.
   while (true) {
     wait(100, msec);

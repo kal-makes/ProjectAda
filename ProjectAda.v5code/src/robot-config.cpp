@@ -29,6 +29,9 @@ motor_group frontLift = motor_group(rightTiltmotor, leftTiltmotor);
 limit Switch_hi = limit(Brain.ThreeWirePort.H);
 limit Switch_front = limit(Brain.ThreeWirePort.G);
 sonar back_sonar = sonar(Brain.ThreeWirePort.F);
+
+#define VER (1)
+#define DBG (1)
 // VEXcode generated functions
 // define variable for remote controller enable/disable
 //bool RemoteControlCodeEnabled = true;
@@ -38,9 +41,13 @@ sonar back_sonar = sonar(Brain.ThreeWirePort.F);
  * 
  * This should be called at the start of your int main function.
  */
+void resetDrivetrain( void ){
+  LeftDriveSmart.resetPosition();
+  RightDriveSmart.resetPosition();
+}
+
 void vexcodeInit( void ) {
-  /*
-    LeftDriveSmart.resetPosition();
+  LeftDriveSmart.resetPosition();
   RightDriveSmart.resetPosition();
   while(!Switch_hi){
     LiftMotors.spin(forward);
@@ -48,5 +55,4 @@ void vexcodeInit( void ) {
     LiftMotors.stop(brake);
     LiftMotors.resetPosition();
   }
-  */
 }

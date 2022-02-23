@@ -36,9 +36,7 @@ int distance_sensor() {
     return 0;
   }
 }
-
 ///////////////////////////////////////DRIVE
-
 int _arcadeDrive_() {
   if (RemoteControlCodeEnabled && !drive_state) {
     int drivetrainLeftSideSpeed =
@@ -73,6 +71,7 @@ void _reverseSLOW_() {
   intakeMotor.stop();
   drive_state = false;
 }
+
 int _drive_() {
   if (!drive_state) {
     _arcadeDrive_();
@@ -110,11 +109,13 @@ void _intakeSLOW_() {
   intakeMotor.stop();
   drive_state = false;
 }
+
 void _intake_increment_() {
   int current_velocity = intakeMotor.velocity(pct);
   int new_velocity = current_velocity + 5;
   intakeMotor.setVelocity(new_velocity, pct);
 }
+
 void _intake_decrement_() {
   int current_velocity = intakeMotor.velocity(pct);
   int new_velocity = current_velocity - 5;
@@ -139,7 +140,7 @@ int _armLift_() {
     // checks to see if Button R1 on controller is pressed and that the limit
     // switch is not triggered
     if (!Switch_hi) {
-      LiftMotors.setVelocity(20, percent);
+      LiftMotors.setVelocity(30, percent);
       // set the velocity low
       LiftMotors.spin(forward);
       Controller1R1R2ButtonsControlMotorsStopped = false;
@@ -150,7 +151,7 @@ int _armLift_() {
       state = false;
     }
   } else if (Controller1.ButtonR2.pressing() &&
-             LiftMotors.position(deg) >= -350) {
+             LiftMotors.position(deg) >= -400) {
     // checks to see if R2 is pressed so that we can lower the the arm down
     LiftMotors.setVelocity(35, percent);
     LiftMotors.spin(reverse);
@@ -173,16 +174,12 @@ int _armLift_() {
   }
   return 0;
 }
-
 ///////////////////////////////////////SPECIAL FUNCTIONS
-
 void _special_func_() {
   Controller1.ButtonDown.pressed(_reverseSLOW_);
   Controller1.ButtonUp.pressed(_intakeSLOW_);
 }
-
 ///////////////////////////////////////DISPLAY
-
 void controller_display() {
   Controller1.Screen.clearScreen();
   Controller1.Screen.setCursor(0, 0);
@@ -200,18 +197,17 @@ void dashboard(void) {
   Controller1.Screen.print(distance_sensor());
   Controller1.Screen.clearLine();
 }
-
 ///////////////////////////////////////CALLBACKS
 
 void init_callbacks() {
   intake_init();
   _special_func_();
 }
-
 ///////////////////////////////////////TASK-MANAGER
-
 void task_manager() {
   task ADAdrive = task(_arcadeDrive_);
   task ADAlift = task(_armLift_);
-  controller_display();
+    Controller1.Screen.clearLine();
+  Controller1.Screen.print(LiftMotors.torque());
+  //controller_display();
 }
