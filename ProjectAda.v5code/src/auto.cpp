@@ -181,12 +181,12 @@ int routine0(void){
       intakeMotor.spin(reverse, 80, pct);
       wait(500, msec);
       intakeMotor.stop();
-      frontLift.spinTo(-45, degrees);
-      r1 = check;
+      frontLift.spinTo(-50, degrees);
+      r1 = finished;
       return 0;
     case check:
       if(Switch_front){
-        frontLift.spinTo(45, degrees);
+        frontLift.spinTo(50, degrees);
         r1 = finished;
       }else{
         r1 = increment;
@@ -222,8 +222,8 @@ int grabGoal(){
   return 1;
 }
 int intake_rings(){
-  drivePID(5, 0,1);
-  drivePID(0,98, 1);
+  drivePID(5, 0, 1);
+  drivePID(0, 98, 1);
   intakeMotor.setVelocity(70, percent);
   intakeMotor.spin(fwd);
   drivePID(26, 0, 2);
@@ -232,14 +232,17 @@ int intake_rings(){
   drivePID(-3, 0, 2);
   return 1;
 }
+
 //intake
 //################################################### SCRIPT:
 //put routines in there
 void auto_routine(void) {
 LiftMotors.resetPosition();
+//DO NOT TOUCH//
 while(!motor_flipped){
   routine0();
 }
+//
 grabGoal();
 intake_rings();
 }
