@@ -73,7 +73,6 @@ void usercontrol(void) {
   if(!autonoumous_active){
       // User control code here, inside the loop
   init_callbacks();
-  Controller1.Screen.clearScreen();
   //file();
   while (1) {
     // This is the main execution loop for the user control program.
@@ -104,7 +103,7 @@ int main() {
   Competition.autonomous(autonomous);
   Competition.drivercontrol(usercontrol);
   // Run the pre-autonomous function.
-  //pre_auton();
+  pre_auton();
   // Prevent main from exiting with an infinite loop.
   while (true) {
     wait(100, msec);

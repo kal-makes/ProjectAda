@@ -91,7 +91,7 @@ void _intake_() {
   } else {
     // when callback is triggered a second time, motor stops and latches to
     // false
-    intakeMotor.stop();
+    intakeMotor.stop(coast);
     latch = false;
   }
   task::sleep(20);
@@ -180,23 +180,6 @@ void _special_func_() {
   Controller1.ButtonUp.pressed(_intakeSLOW_);
 }
 ///////////////////////////////////////DISPLAY
-void controller_display() {
-  Controller1.Screen.clearScreen();
-  Controller1.Screen.setCursor(0, 0);
-  if (DBG) {
-    Controller1.Screen.print("Lift Deg: ");
-    Controller1.Screen.print(LiftMotors.position(deg));
-    Controller1.Screen.newLine();
-    Controller1.Screen.print("Intake Vel (pct):");
-    Controller1.Screen.print(intakeMotor.velocity(pct));
-  }
-}
-void dashboard(void) {
-  Controller1.Screen.setCursor(0, 0);
-  Controller1.Screen.print("Lift Distance: ");
-  Controller1.Screen.print(distance_sensor());
-  Controller1.Screen.clearLine();
-}
 ///////////////////////////////////////CALLBACKS
 
 void init_callbacks() {
@@ -208,6 +191,4 @@ void task_manager() {
   task ADAdrive = task(_arcadeDrive_);
   task ADAlift = task(_armLift_);
     Controller1.Screen.clearLine();
-  Controller1.Screen.print(LiftMotors.torque());
-  //controller_display();
 }
