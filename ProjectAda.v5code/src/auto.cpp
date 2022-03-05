@@ -32,75 +32,6 @@ void front_latch() {
   for ADA both laterally and rotationally
  ---------------------------------------
 */
-int drivePID(float desiredPos, double desiredTurnPos, double magnitude){
-  double latMotorPower;
-  double turnMotorPower;
-  timer PIDTIMER;
-  int t0 = 0;
-  //lateral movement//
-  desiredPos = inches_to_degrees(desiredPos);
-  //converst desired inches into degrees for easier use of motors
-  resetDrivetrain();
-  //resets drive encoders
-  //PIDinit();
-  while(!complete){
-
-    double leftDrivepos = LeftDriveSmart.position(degrees);
-    double rightDrivepos  = RightDriveSmart.position(degrees);
-    double avgPosition = (leftDrivepos+rightDrivepos)/2;
-    //retrieves drive train encoder values (deg)
-    float error = desiredPos - avgPosition;
-    derivative = error - prevError;
-    //calculates error and also derivate
-    
-    //PD Loop for lateral movement
-    float turnDifference = leftDrivepos - rightDrivepos;
-    turnDifference = degrees_to_inches(turnDifference);
-    turnDifference = adjusted_angle(turnDifference);
-    turnError = desiredTurnPos - turnDifference;
-    //error for turning
-    //avg error to break loop when less than threshold
-    turnDerivative = turnError - prevTurnError;
-    //PD loop for rotational movement
-    //spin motors
-    latMotorPower = ((error*kP + derivative*kD + totalError*kI)/12)/magnitude;
-    turnMotorPower= ((turnError*turnKp + turnDerivative*turnKd+ totalError*turnKi)/12)/magnitude;
-
-    LeftDriveSmart.spin(forward, latMotorPower + turnMotorPower, voltageUnits::volt);
-    RightDriveSmart.spin(forward, latMotorPower - turnMotorPower, voltageUnits::volt);
-
-    float avgPower = (LeftDriveSmart.voltage()+RightDriveSmart.voltage())/2;
-    float avg_error = (turnError+error)/2;
-    Controller1.Screen.clearLine();
-    Controller1.Screen.print(avg_error);
-
-    prevError = error;
-    totalError += error;
-    prevTurnError = turnError;
-    counter = counter+20;
-
-    if(previous_average != NAN && previous_average == avg_error){
-      int t2 = PIDTIMER.time(msec);
-      if(t2 - t0 >= 1000){
-        complete = true;
-        Controller1.Screen.clearLine();
-        Controller1.Screen.print(turnDifference);
-        PIDTIMER.reset();
-      }
-    }else{
-      previous_average = avg_error;
-    }
-    PIDwrite(error, turnError, avgPower, counter, avgPosition, desiredPos, turnDifference, desiredPos);
-    wait(1, msec);
-  }
-  LeftDriveSmart.stop(brake);
-  RightDriveSmart.stop(brake);
-  LeftDriveSmart.resetPosition();
-  RightDriveSmart.resetPosition();
-  complete = false;
-  //wait(300, msec);
-  return 1;
-}
 /*--------------------------------------
   ULTRASONIC PID FUNCTION:
   Used to recieve sensor values and 
@@ -170,18 +101,19 @@ int lift_auto(float torque_){
 */
 int routine0(void){
   frontLift.resetRotation();
-  frontLift.setVelocity(90, percent);
-  LiftMotors.setVelocity(70, percent);
+  frontLift.setVelocity(100, percent);
+  LiftMotors.setVelocity(100, percent);
+  intakeMotor.resetPosition();
+  intakeMotor.setVelocity(100, percent);
   switch(r1){
     case start:
       r1= rotate;
       return 0;
     case rotate:
-      LiftMotors.spinTo(-400, degrees);
-      intakeMotor.spin(reverse, 80, pct);
-      wait(500, msec);
-      intakeMotor.stop();
-      frontLift.spinTo(-50, degrees);
+      //LiftMotors.spinTo(336, degrees);
+      intakeMotor.spinTo(-40, degrees);
+      frontLift.spinTo(-70, degrees);
+      frontLift.spinTo(70, degrees);
       r1 = finished;
       return 0;
     case check:
@@ -213,6 +145,7 @@ int routine0(void){
   the setpoint
  ---------------------------------------
 */
+/*
 int grabGoal(){
   //get alliance goal
   drivePID(25, 0,1);
@@ -232,17 +165,35 @@ int intake_rings(){
   drivePID(-3, 0, 2);
   return 1;
 }
+*/
+int lift_down(){
+  LiftMotors.setVelocity(100, percent);
+  LiftMotors.spinTo(346, degrees);
+  return 1;
+}
+void routine00(){
+PID AdaPID;
+task liftDown(lift_down);
+AdaPID.startPID(-53, 0);
+LiftMotors.spinTo(200, degrees);
+AdaPID.startPID(30, 0);
+LiftMotors.spinTo(346, degrees);
+AdaPID.startPID(2, 0);
+AdaPID.startPID(0, -90);
 
+}
 //intake
 //################################################### SCRIPT:
 //put routines in there
 void auto_routine(void) {
-LiftMotors.resetPosition();
+routine00();
 //DO NOT TOUCH//
 while(!motor_flipped){
   routine0();
 }
-//
-grabGoal();
-intake_rings();
+
+//grabGoal();
+//intake_rings();
+
+
 }

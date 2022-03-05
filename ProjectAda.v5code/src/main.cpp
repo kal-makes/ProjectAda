@@ -51,9 +51,7 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void autonomous(void) {
-  autonoumous_active = true;
   auto_routine();
-  autonoumous_active = false;
   // ..........................................................................
   // Insert autonomous user code here.
   // ..........................................................................

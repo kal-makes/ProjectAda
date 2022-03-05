@@ -16,11 +16,11 @@ class PID{
     int derivative;
     float pctError;
 
-    double kP = 0.03;//0.025
-    double kD = 0.9;//0.9
+    double kP = 0.65;//0.025
+    double kD = 55.0;//0.9
     double kI= 0.0;
 
-    double turnKp = 3.0; //3.0
+    double turnKp = 2.0; //3.0
     double turnKd = 0.1; //0.1
     double turnKi = 0.0;
 

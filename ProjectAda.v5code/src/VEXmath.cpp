@@ -23,6 +23,10 @@ double sonar_kI = 0.0;
 
 double acceptable_error = 0.0;
 
+double gearRatio_conv(float destination, float source, float val){
+  val = val*(destination/source);
+  return val;
+}
 double adjusted_angle(float angle_){
   angle_ = angle_*((180/M_PI)/width);
   return angle_;

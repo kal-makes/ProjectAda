@@ -18,8 +18,8 @@ motor_group RightDriveSmart = motor_group(rightMotorA, rightMotorB);
 drivetrain Drivetrain = drivetrain(LeftDriveSmart, RightDriveSmart, 319.19, 292.09999999999997, 9.906, mm, 0.33);
 //CHANGED GEAR RATIO
 motor middleMotor = motor(PORT12, ratio18_1, false);
-motor LiftMotorsMotorA = motor(PORT2, ratio18_1, false);
-motor LiftMotorsMotorB = motor(PORT3, ratio18_1, true);
+motor LiftMotorsMotorA = motor(PORT2, ratio18_1, true);
+motor LiftMotorsMotorB = motor(PORT3, ratio18_1, false);
 motor_group LiftMotors = motor_group(LiftMotorsMotorA, LiftMotorsMotorB);
 motor intakeMotor = motor(PORT15, ratio18_1,false);
 motor rightTiltmotor = motor(PORT4, ratio18_1, false);
@@ -45,14 +45,14 @@ void resetDrivetrain( void ){
   LeftDriveSmart.resetPosition();
   RightDriveSmart.resetPosition();
 }
-
-void vexcodeInit( void ) {
+void resetALL(){
   LeftDriveSmart.resetPosition();
   RightDriveSmart.resetPosition();
-  while(!Switch_hi){
-    LiftMotors.spin(forward);
-  }if(Switch_hi){
-    LiftMotors.stop(brake);
-    LiftMotors.resetPosition();
-  }
+  LiftMotors.resetPosition();
+  intakeMotor.resetPosition();
+
+}
+
+void vexcodeInit( void ) {
+ resetALL();
 }

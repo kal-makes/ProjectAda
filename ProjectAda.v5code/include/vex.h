@@ -20,6 +20,7 @@
 #include "auto.h"
 #include "VEXmath.h"
 #include "fileManager.h"
+#include "pid.h"
 
 #define waitUntil(condition)                                                   \
   do {                                                                         \
